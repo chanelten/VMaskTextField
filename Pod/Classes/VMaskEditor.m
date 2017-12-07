@@ -32,36 +32,28 @@
         return NO;
     }
     
-    int last = 0;
-    BOOL needAppend = NO;
-    for (int i = 0; i < currentTextDigited.length; i++) {
+    for (int i = 0, j = 0; i < mask.length && j < currentTextDigited.length;) {
         unichar  currentCharMask = [mask characterAtIndex:i];
-        unichar  currentChar = [currentTextDigited characterAtIndex:i];
+        unichar  currentChar = [currentTextDigited characterAtIndex:j];
         if (isnumber(currentChar) && currentCharMask == '#') {
             [returnText appendString:[NSString stringWithFormat:@"%c",currentChar]];
-        }else{
-            if (currentCharMask == '#') {
-                break;
+            i++;
+            j++;
+        } else {
+            // ignore unnecessary characters from currentTextDigited (eg: letters)
+            if (!isnumber(currentChar) && currentCharMask != currentChar) {
+                j++;
+            // include mask's character
+            } else if (isnumber(currentChar) && currentCharMask != currentChar) {
+                [returnText appendString:[NSString stringWithFormat:@"%c",currentCharMask]];
+                i++;
+            // include matching character from currentTextDigited & mask
+            } else if (currentCharMask == currentChar) {
+                [returnText appendString:[NSString stringWithFormat:@"%c",currentCharMask]];
+                j++;
+                i++;
             }
-            if (isnumber(currentChar) && currentCharMask!= currentChar) {
-                needAppend = YES;
-            }
-            [returnText appendString:[NSString stringWithFormat:@"%c",currentCharMask]];
         }
-        last = i;
-    }
-    
-    for (int i = last+1; i < mask.length; i++) {
-        unichar currentCharMask = [mask characterAtIndex:i];
-        if (currentCharMask != '#') {
-            [returnText appendString:[NSString stringWithFormat:@"%c",currentCharMask]];
-        }
-        if (currentCharMask == '#') {
-            break;
-        }
-    }
-    if (needAppend) {
-        [returnText appendString:string];
     }
     textField.text = returnText;
     [textField sendActionsForControlEvents:UIControlEventEditingChanged];
