@@ -32,7 +32,8 @@
         return NO;
     }
     
-    for (int i = 0, j = 0; i < mask.length && j < currentTextDigited.length;) {
+    int i = 0, j = 0;
+    while (mask.length && j < currentTextDigited.length) {
         unichar  currentCharMask = [mask characterAtIndex:i];
         unichar  currentChar = [currentTextDigited characterAtIndex:j];
         if (isnumber(currentChar) && currentCharMask == '#') {
@@ -40,21 +41,22 @@
             i++;
             j++;
         } else {
-            // ignore unnecessary characters from currentTextDigited (eg: letters)
             if (!isnumber(currentChar) && currentCharMask != currentChar) {
+                // ignore unnecessary characters from currentTextDigited (eg: letters)
                 j++;
-            // include mask's character
             } else if (isnumber(currentChar) && currentCharMask != currentChar) {
+                // include mask's character
                 [returnText appendString:[NSString stringWithFormat:@"%c",currentCharMask]];
                 i++;
-            // include matching character from currentTextDigited & mask
             } else if (currentCharMask == currentChar) {
+                // include matching character from currentTextDigited & mask
                 [returnText appendString:[NSString stringWithFormat:@"%c",currentCharMask]];
                 j++;
                 i++;
             }
         }
     }
+    
     textField.text = returnText;
     [textField sendActionsForControlEvents:UIControlEventEditingChanged];
     return NO;
