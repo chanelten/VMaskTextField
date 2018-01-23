@@ -9,14 +9,24 @@
 #import "VMaskEditor.h"
 
 @implementation VMaskEditor
+const int WHITESPACE_LOCATION = 5;
 
 +(BOOL)shouldChangeCharactersInRange:(NSRange)range
                    replacementString:(NSString *)string
                            textField:(UITextField *)textField
                                 mask:(NSString *)mask{
-    
     NSString * currentTextDigited = [textField.text stringByReplacingCharactersInRange:range withString:string];
     if (string.length == 0) {
+        uint locationPointer = range.location;
+        unichar characterInMask = [mask characterAtIndex:locationPointer];
+        
+        // prevent the deletion of the space character in between the credit card number details
+        while (characterInMask != '#') {
+            locationPointer--;
+            characterInMask = [mask characterAtIndex:locationPointer];
+        }
+        NSRange newRange = NSMakeRange(locationPointer, range.length);
+        currentTextDigited = [textField.text stringByReplacingCharactersInRange:newRange withString:string];
         unichar lastCharDeleted = 0;
         while (currentTextDigited.length > 0 && !isnumber([currentTextDigited characterAtIndex:currentTextDigited.length-1])) {
             lastCharDeleted = [currentTextDigited characterAtIndex:[currentTextDigited length] - 1];
@@ -24,7 +34,6 @@
         }
         textField.text = currentTextDigited;
         [textField sendActionsForControlEvents:UIControlEventEditingChanged];
-        return NO;
     }
     
     NSMutableString * returnText = [[NSMutableString alloc] init];
